@@ -1,0 +1,17 @@
+mkdir -p ~/.kube
+sudo cp /etc/kubernetes/admin.conf ~/.kube/config
+sudo chown $(id -u):$(id -g) ~/.kube/config
+kubectl get nodes
+
+
+
+
+
+# 1. App stack (namespace, configmap, deployment, service, ingress)
+kubectl apply -f demo.yaml
+
+# 2. TLS secret — from the cert files already on disk (NOT running dehydrated)
+kubectl create secret tls web-tls -n demo \
+  --cert=/etc/dehydrated/certs/ssmc.freedynamicdns.net/fullchain.pem \
+  --key=/etc/dehydrated/certs/ssmc.freedynamicdns.net/privkey.pem \
+  --dry-run=client -o yaml | kubectl apply -f -

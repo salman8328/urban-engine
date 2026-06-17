@@ -1,0 +1,4 @@
+CHALLENGETYPE="http-01"
+WELLKNOWN="/var/lib/acme-webroot/.well-known/acme-challenge"
+HOOK="./hook.sh"   # only deploy_cert matters now
+CONTACT_EMAIL="you@example.com"

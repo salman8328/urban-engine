@@ -1,0 +1,11 @@
+# Podman network definition for K8s lab cluster
+# Create with: podman network create --subnet 10.89.0.0/24 --gateway 10.89.0.1 k8s-lab
+#
+# Or use the helper script: ./scripts/create-network.sh
+
+name: k8s-lab
+driver: bridge
+subnets:
+  - subnet: 10.89.0.0/24
+    gateway: 10.89.0.1
+dns_enabled: true

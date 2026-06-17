@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acme-webroot
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: acme-webroot }
+  template:
+    metadata:
+      labels: { app: acme-webroot }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable
+          ports: [{ containerPort: 80 }]
+          volumeMounts:
+            - name: webroot
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: webroot
+          hostPath:
+            path: /var/lib/acme-webroot
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acme-webroot
+  namespace: demo
+spec:
+  selector: { app: acme-webroot }
+  ports:
+    - port: 80
+      targetPort: 80

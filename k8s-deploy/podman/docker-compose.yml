@@ -1,0 +1,85 @@
+# 3-node K8s lab using systemd-enabled AlmaLinux 9 containers
+# Usage:
+#   1. First create the network: ./scripts/setup.sh
+#   2. Then: podman-compose up -d
+#   3. Then follow scripts/init-cluster.sh to bootstrap K8s
+
+version: "3.9"
+
+networks:
+  k8s-lab:
+    external: true  # Created via: podman network create --subnet 10.89.0.0/24 --gateway 10.89.0.1 k8s-lab
+
+services:
+
+  k8s-master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: k8s-node:almalinux9
+    container_name: k8s-master
+    hostname: k8s-master
+    networks:
+      k8s-lab:
+        ipv4_address: 10.89.0.10
+    privileged: true
+    cgroupns: host
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - k8s-master-data:/var/lib/kubelet
+    environment:
+      - container=podman
+    restart: unless-stopped
+
+  k8s-worker1:
+    image: k8s-node:almalinux9
+    container_name: k8s-worker1
+    hostname: k8s-worker1
+    networks:
+      k8s-lab:
+        ipv4_address: 10.89.0.11
+    privileged: true
+    cgroupns: host
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - k8s-worker1-data:/var/lib/kubelet
+    environment:
+      - container=podman
+    depends_on:
+      - k8s-master
+    restart: unless-stopped
+
+  k8s-worker2:
+    image: k8s-node:almalinux9
+    container_name: k8s-worker2
+    hostname: k8s-worker2
+    networks:
+      k8s-lab:
+        ipv4_address: 10.89.0.12
+    privileged: true
+    cgroupns: host
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - k8s-worker2-data:/var/lib/kubelet
+    environment:
+      - container=podman
+    depends_on:
+      - k8s-master
+    restart: unless-stopped
+
+volumes:
+  k8s-master-data:
+  k8s-worker1-data:
+  k8s-worker2-data:

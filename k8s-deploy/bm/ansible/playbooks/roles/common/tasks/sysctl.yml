@@ -2,6 +2,14 @@
 # In Podman privileged containers some sysctl keys may already be set by the host
 # or /proc/sys may be partially read-only. Use command + ignore errors.
 
+- name: Ensure /etc/sysctl.d exists
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Write sysctl config file for K8s networking
   ansible.builtin.copy:
     dest: /etc/sysctl.d/k8s.conf

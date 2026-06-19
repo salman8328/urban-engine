@@ -1,0 +1,22 @@
+---
+# K8s lab inventory — 3 Podman containers on k8s-lab network (10.89.0.0/24)
+# SSH into containers via host-mapped ports (see docker-compose.yml)
+
+k8s_lab:
+  children:
+    k8s_control_plane:
+      hosts:
+        k8s-master:
+          ansible_host: 127.0.0.1
+          ansible_port: 2210
+          node_ip: 10.89.0.10
+    k8s_workers:
+      hosts:
+        k8s-worker1:
+          ansible_host: 127.0.0.1
+          ansible_port: 2211
+          node_ip: 10.89.0.11
+        k8s-worker2:
+          ansible_host: 127.0.0.1
+          ansible_port: 2212
+          node_ip: 10.89.0.12

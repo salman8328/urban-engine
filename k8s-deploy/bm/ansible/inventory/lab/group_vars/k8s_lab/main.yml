@@ -1,0 +1,18 @@
+---
+# Variables common to ALL nodes in the lab cluster
+
+ansible_user: root
+ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+# Kubernetes version
+k8s_version: "1.29"
+k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/rpm/"
+
+# Container runtime
+containerd_version: "latest"
+
+# Pod network CIDR (Calico default)
+pod_network_cidr: "192.168.0.0/16"
+
+# K8s master node IP (used by workers to join)
+k8s_master_ip: "10.89.0.10"

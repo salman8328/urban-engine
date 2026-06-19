@@ -1,0 +1,6 @@
+---
+- name: Enable kubelet service (started by kubeadm init/join)
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: yes
+    daemon_reload: yes

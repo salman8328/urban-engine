@@ -1,0 +1,17 @@
+---
+- name: Generate kubeadm join command
+  ansible.builtin.command:
+    cmd: kubeadm token create --print-join-command
+  register: join_command_raw
+  changed_when: false
+
+- name: Store join command as fact for workers
+  ansible.builtin.set_fact:
+    k8s_join_command: "{{ join_command_raw.stdout }}"
+
+- name: Share join command with all hosts
+  ansible.builtin.set_fact:
+    k8s_join_command: "{{ hostvars[groups['k8s_control_plane'][0]]['k8s_join_command'] }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['k8s_workers'] }}"

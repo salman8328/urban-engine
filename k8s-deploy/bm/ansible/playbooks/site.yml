@@ -1,0 +1,24 @@
+---
+# site.yml — Install K8s prerequisites on all nodes
+# Run this FIRST after containers are up and SSH is reachable
+#
+# Usage:
+#   cd k8s-deploy/ansible
+#   ansible-playbook playbooks/site.yml
+
+- name: Configure all K8s nodes (common + containerd + kubeadm)
+  hosts: k8s_lab
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Force all notified handlers to run
+      ansible.builtin.meta: flush_handlers
+
+    - import_role:
+        name: common
+
+    - import_role:
+        name: containerd
+
+    - import_role:
+        name: kubeadm

@@ -1,0 +1,15 @@
+---
+- name: Add Docker CE repo (provides containerd.io)
+  ansible.builtin.yum_repository:
+    name: docker-ce
+    description: Docker CE Stable
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    enabled: yes
+
+- name: Install containerd.io
+  ansible.builtin.dnf:
+    name: containerd.io
+    state: "{{ containerd_version | default('present') }}"
+    disable_gpg_check: false

@@ -1,0 +1,20 @@
+---
+- name: Check if cluster is already initialised
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadm_init_done
+
+- name: Run kubeadm init
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init
+      --apiserver-advertise-address={{ node_ip }}
+      --pod-network-cidr={{ pod_network_cidr }}
+      --ignore-preflight-errors=all
+  register: kubeadm_init_output
+  when: not kubeadm_init_done.stat.exists
+
+- name: Show kubeadm init output
+  ansible.builtin.debug:
+    var: kubeadm_init_output.stdout_lines
+  when: kubeadm_init_output is changed

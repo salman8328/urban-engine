@@ -1,0 +1,43 @@
+---
+# k8s-init.yml — Bootstrap the K8s cluster (replaces init-cluster.sh)
+# Run this AFTER site.yml has completed on all nodes
+#
+# Usage:
+#   cd k8s-deploy/ansible
+#   ansible-playbook playbooks/k8s-init.yml
+
+- name: Initialise K8s control plane
+  hosts: k8s_control_plane
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Force all notified handlers to run
+      ansible.builtin.meta: flush_handlers
+
+    - import_role:
+        name: k8s_control_plane
+
+- name: Join worker nodes to cluster
+  hosts: k8s_workers
+  gather_facts: yes
+  become: true
+  tasks:
+    - import_role:
+        name: k8s_worker
+
+- name: Show cluster status
+  hosts: k8s_control_plane
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Get node status
+      ansible.builtin.command:
+        cmd: kubectl get nodes -o wide
+      environment:
+        KUBECONFIG: /root/.kube/config
+      register: node_status
+      changed_when: false
+
+    - name: Print cluster nodes
+      ansible.builtin.debug:
+        var: node_status.stdout_lines

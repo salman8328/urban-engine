@@ -1,0 +1,5 @@
+---
+- import_tasks: init.yml
+- import_tasks: kubeconfig.yml
+- import_tasks: cni.yml
+- import_tasks: get_join_command.yml

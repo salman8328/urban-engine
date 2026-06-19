@@ -7,7 +7,7 @@ set -euo pipefail
 NETWORK_NAME="k8s-lab"
 SUBNET="10.89.0.0/24"
 GATEWAY="10.89.0.1"
-IMAGE_NAME="k8s-node:almalinux9"
+IMAGE_NAME="k8s-node:almalinux10"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_DIR="$(dirname "$SCRIPT_DIR")"

@@ -1,8 +1,12 @@
-# 3-node K8s lab using systemd-enabled AlmaLinux 9 containers
+# 3-node K8s lab using systemd-enabled AlmaLinux 10 containers
 # Usage:
-#   1. First create the network: ./scripts/setup.sh
-#   2. Then: podman-compose up -d
-#   3. Then follow scripts/init-cluster.sh to bootstrap K8s
+#   1. First create the network + build image: ./scripts/setup.sh
+#   2. Start containers: podman-compose up -d
+#   3. Install K8s prereqs via Ansible: cd ../ansible && ansible-playbook playbooks/site.yml
+#   4. Bootstrap cluster via Ansible: ansible-playbook playbooks/k8s-init.yml
+#
+# DNS: Podman's netavark backend provides container DNS by hostname within k8s-lab network.
+# SSH: Each container exposes sshd on a unique host port (2210/2211/2212) for Ansible access.
 
 version: "3.9"
 
@@ -16,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: k8s-node:almalinux9
+    image: k8s-node:almalinux10
     container_name: k8s-master
     hostname: k8s-master
     networks:
@@ -24,6 +28,8 @@ services:
         ipv4_address: 10.89.0.10
     privileged: true
     cgroupns: host
+    ports:
+      - "2210:22"   # SSH for Ansible → ansible_port: 2210
     tmpfs:
       - /tmp
       - /run
@@ -31,12 +37,13 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-master-data:/var/lib/kubelet
+      - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
     restart: unless-stopped
 
   k8s-worker1:
-    image: k8s-node:almalinux9
+    image: k8s-node:almalinux10
     container_name: k8s-worker1
     hostname: k8s-worker1
     networks:
@@ -44,6 +51,8 @@ services:
         ipv4_address: 10.89.0.11
     privileged: true
     cgroupns: host
+    ports:
+      - "2211:22"   # SSH for Ansible → ansible_port: 2211
     tmpfs:
       - /tmp
       - /run
@@ -51,6 +60,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-worker1-data:/var/lib/kubelet
+      - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
     depends_on:
@@ -58,7 +68,7 @@ services:
     restart: unless-stopped
 
   k8s-worker2:
-    image: k8s-node:almalinux9
+    image: k8s-node:almalinux10
     container_name: k8s-worker2
     hostname: k8s-worker2
     networks:
@@ -66,6 +76,8 @@ services:
         ipv4_address: 10.89.0.12
     privileged: true
     cgroupns: host
+    ports:
+      - "2212:22"   # SSH for Ansible → ansible_port: 2212
     tmpfs:
       - /tmp
       - /run
@@ -73,6 +85,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-worker2-data:/var/lib/kubelet
+      - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
     depends_on:

@@ -1,0 +1,20 @@
+nmcli wifi
+
+nmcli dev wifi Tele password cxdscns
+
+[login]
+lid
+
+mask sleep.taget hibernate ..
+
+restart logind
+
+htop
+
+install ansible pip
+
+
+root@localhost:~/urban-engine# cat ~/.ssh/config
+Host github.com
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/urban

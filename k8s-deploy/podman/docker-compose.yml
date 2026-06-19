@@ -37,6 +37,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-master-data:/var/lib/kubelet
+      - k8s-master-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
@@ -60,6 +61,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-worker1-data:/var/lib/kubelet
+      - k8s-worker1-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
@@ -85,6 +87,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - k8s-worker2-data:/var/lib/kubelet
+      - k8s-worker2-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
     environment:
       - container=podman
@@ -94,5 +97,8 @@ services:
 
 volumes:
   k8s-master-data:
+  k8s-master-containerd:
   k8s-worker1-data:
+  k8s-worker1-containerd:
   k8s-worker2-data:
+  k8s-worker2-containerd:

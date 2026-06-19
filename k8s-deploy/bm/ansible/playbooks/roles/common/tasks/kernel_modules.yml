@@ -1,13 +1,20 @@
 ---
+# In Podman privileged containers /lib/modules may not be present.
+# Use modprobe directly and ignore errors for built-in modules.
+
 - name: Load overlay kernel module
-  community.general.modprobe:
-    name: overlay
-    state: present
+  ansible.builtin.command:
+    cmd: modprobe overlay
+  register: modprobe_overlay
+  failed_when: false
+  changed_when: modprobe_overlay.rc == 0
 
 - name: Load br_netfilter kernel module
-  community.general.modprobe:
-    name: br_netfilter
-    state: present
+  ansible.builtin.command:
+    cmd: modprobe br_netfilter
+  register: modprobe_br
+  failed_when: false
+  changed_when: modprobe_br.rc == 0
 
 - name: Persist kernel modules across reboots
   ansible.builtin.copy:

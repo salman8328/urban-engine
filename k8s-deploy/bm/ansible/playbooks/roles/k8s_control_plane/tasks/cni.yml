@@ -1,7 +1,18 @@
 ---
+- name: Wait for kube-apiserver to be ready
+  ansible.builtin.command:
+    cmd: kubectl get nodes --no-headers
+  environment:
+    KUBECONFIG: /root/.kube/config
+  register: apiserver_ready
+  until: apiserver_ready.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false
+
 - name: Install Calico CNI
   ansible.builtin.command:
-    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+    cmd: kubectl apply --validate=false -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
   environment:
     KUBECONFIG: /root/.kube/config
   register: calico_apply

@@ -10,11 +10,38 @@
 - name: Generate default containerd config
   ansible.builtin.shell:
     cmd: containerd config default > /etc/containerd/config.toml
-    creates: /etc/containerd/config.toml
+
+# containerd on AlmaLinux 10 ships with CRI disabled: disabled_plugins = ["cri"]
+# Remove it so kubelet can connect via the CRI socket.
+- name: Enable CRI plugin (remove from disabled_plugins)
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: '^disabled_plugins\s*=\s*\["cri"\]'
+    replace: 'disabled_plugins = []'
 
 - name: Enable SystemdCgroup in containerd config
   ansible.builtin.replace:
     path: /etc/containerd/config.toml
     regexp: 'SystemdCgroup = false'
     replace: 'SystemdCgroup = true'
-  notify: restart containerd
+
+- name: Restart containerd to apply config
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+    daemon_reload: yes
+
+- name: Wait for containerd CRI socket
+  ansible.builtin.wait_for:
+    path: /run/containerd/containerd.sock
+    state: present
+    timeout: 30
+
+- name: Verify CRI is working
+  ansible.builtin.command:
+    cmd: crictl --runtime-endpoint unix:///run/containerd/containerd.sock info
+  register: crictl_info
+  retries: 5
+  delay: 5
+  until: crictl_info.rc == 0
+  changed_when: false

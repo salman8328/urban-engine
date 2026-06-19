@@ -9,11 +9,12 @@
     gpgkey: "{{ k8s_repo_url }}repodata/repomd.xml.key"
     exclude: "kubelet kubeadm kubectl cri-tools kubernetes-cni"
 
-- name: Install kubelet, kubeadm, kubectl
+- name: Install kubelet, kubeadm, kubectl, cri-tools
   ansible.builtin.dnf:
     name:
       - kubelet
       - kubeadm
       - kubectl
+      - cri-tools
     state: present
     disable_excludes: kubernetes

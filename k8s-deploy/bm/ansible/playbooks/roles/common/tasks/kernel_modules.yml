@@ -16,6 +16,14 @@
   failed_when: false
   changed_when: modprobe_br.rc == 0
 
+- name: Ensure /etc/modules-load.d exists
+  ansible.builtin.file:
+    path: /etc/modules-load.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Persist kernel modules across reboots
   ansible.builtin.copy:
     dest: /etc/modules-load.d/k8s.conf

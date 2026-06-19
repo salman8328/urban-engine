@@ -26,11 +26,12 @@
     replace: 'SystemdCgroup = true'
 
 # overlayfs doesn't work inside Podman containers — use native snapshotter
+# config.toml uses single quotes: snapshotter = 'overlayfs'
 - name: Set snapshotter to native (for container-in-container)
   ansible.builtin.replace:
     path: /etc/containerd/config.toml
-    regexp: 'snapshotter = "overlayfs"'
-    replace: 'snapshotter = "native"'
+    regexp: "snapshotter = 'overlayfs'"
+    replace: "snapshotter = 'native'"
 
 - name: Restart containerd to apply config
   ansible.builtin.systemd:

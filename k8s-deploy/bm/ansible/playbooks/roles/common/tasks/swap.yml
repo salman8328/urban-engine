@@ -1,0 +1,16 @@
+---
+# Kubernetes requires swap to be disabled.
+# In containers swap is controlled by the host, so swapoff may fail — ignore it.
+
+- name: Disable swap immediately
+  ansible.builtin.command:
+    cmd: swapoff -a
+  failed_when: false
+  changed_when: false
+
+- name: Remove swap entries from /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\s+swap\s+.*)$'
+    replace: '# \1'
+  failed_when: false

@@ -11,7 +11,7 @@
       --apiserver-advertise-address={{ node_ip }}
       --pod-network-cidr={{ pod_network_cidr }}
       --ignore-preflight-errors=all
-      --skip-phases=preflight
+      --skip-phases=preflight,upload-config
   register: kubeadm_init_output
   when: not kubeadm_init_done.stat.exists
 

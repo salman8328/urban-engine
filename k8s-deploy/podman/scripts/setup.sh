@@ -12,6 +12,16 @@ IMAGE_NAME="k8s-node:almalinux10"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_DIR="$(dirname "$SCRIPT_DIR")"
 
+echo "==> Ensuring /sys/fs/bpf is mounted (required for Calico BPF mode)"
+if mount | grep -q "bpf on /sys/fs/bpf"; then
+    echo "    /sys/fs/bpf already mounted — skipping."
+else
+    echo "    Mounting bpffs on /sys/fs/bpf"
+    mount -t bpf bpf /sys/fs/bpf
+    echo "    Mounted."
+fi
+
+echo ""
 echo "==> Checking for existing network: ${NETWORK_NAME}"
 if podman network exists "${NETWORK_NAME}" 2>/dev/null; then
     echo "    Network '${NETWORK_NAME}' already exists — skipping creation."

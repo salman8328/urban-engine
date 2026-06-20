@@ -12,13 +12,15 @@ IMAGE_NAME="k8s-node:almalinux10"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "==> Ensuring /sys/fs/bpf is mounted (required for Calico BPF mode)"
+echo "==> Ensuring /sys/fs/bpf is mounted with shared propagation (required for Calico BPF mode)"
 if mount | grep -q "bpf on /sys/fs/bpf"; then
-    echo "    /sys/fs/bpf already mounted — skipping."
+    echo "    /sys/fs/bpf already mounted — ensuring shared propagation."
+    mount --make-shared /sys/fs/bpf
 else
     echo "    Mounting bpffs on /sys/fs/bpf"
     mount -t bpf bpf /sys/fs/bpf
-    echo "    Mounted."
+    mount --make-shared /sys/fs/bpf
+    echo "    Mounted and set shared."
 fi
 
 echo ""

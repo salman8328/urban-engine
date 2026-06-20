@@ -36,7 +36,7 @@ services:
       - /run/lock
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /sys/fs/bpf:/sys/fs/bpf:rw
+      - /sys/fs/bpf:/sys/fs/bpf:shared
       - k8s-master-data:/var/lib/kubelet
       - k8s-master-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
@@ -61,7 +61,7 @@ services:
       - /run/lock
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /sys/fs/bpf:/sys/fs/bpf:rw
+      - /sys/fs/bpf:/sys/fs/bpf:shared
       - k8s-worker1-data:/var/lib/kubelet
       - k8s-worker1-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
@@ -88,7 +88,7 @@ services:
       - /run/lock
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - /sys/fs/bpf:/sys/fs/bpf:rw
+      - /sys/fs/bpf:/sys/fs/bpf:shared
       - k8s-worker2-data:/var/lib/kubelet
       - k8s-worker2-containerd:/var/lib/containerd
       - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro

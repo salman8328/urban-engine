@@ -4,18 +4,58 @@
     path: /etc/kubernetes/admin.conf
   register: kubeadm_init_done
 
-- name: Run kubeadm init
+# Run kubeadm init in two phases:
+# Phase 1: everything up to (but not including) upload-config
+# This gets the API server running and kubelet started.
+- name: Run kubeadm init phase 1 (bootstrap control plane, skip upload-config)
   ansible.builtin.command:
     cmd: >
       kubeadm init
       --apiserver-advertise-address={{ node_ip }}
       --pod-network-cidr={{ pod_network_cidr }}
       --ignore-preflight-errors=all
-      --skip-phases=preflight,upload-config
-  register: kubeadm_init_output
+      --skip-phases=preflight,upload-config,kubelet-finalize
+  register: kubeadm_init_phase1
   when: not kubeadm_init_done.stat.exists
+  failed_when: >
+    kubeadm_init_phase1.rc != 0 and
+    'already exists' not in (kubeadm_init_phase1.stderr | default(''))
+
+# Wait for kubelet to register the node before upload-config tries to annotate it
+- name: Wait for kubelet to register node
+  ansible.builtin.shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get node {{ ansible_hostname }} --no-headers 2>/dev/null | grep -q .
+  register: node_registered
+  retries: 30
+  delay: 5
+  until: node_registered.rc == 0
+  when: not kubeadm_init_done.stat.exists
+  changed_when: false
+
+# Phase 2: run upload-config now that the node exists
+- name: Run kubeadm init phase 2 (upload-config)
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init phase upload-config all
+      --apiserver-advertise-address={{ node_ip }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: kubeadm_upload_config
+  when: not kubeadm_init_done.stat.exists
+  failed_when: >
+    kubeadm_upload_config.rc != 0 and
+    'already exists' not in (kubeadm_upload_config.stderr | default(''))
+
+- name: Run kubeadm init phase kubelet-finalize
+  ansible.builtin.command:
+    cmd: kubeadm init phase kubelet-finalize all
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: not kubeadm_init_done.stat.exists
+  failed_when: false
 
 - name: Show kubeadm init output
   ansible.builtin.debug:
-    var: kubeadm_init_output.stdout_lines
-  when: kubeadm_init_output is changed
+    var: kubeadm_init_phase1.stdout_lines
+  when: kubeadm_init_phase1 is changed

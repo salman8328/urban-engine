@@ -46,6 +46,11 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 # Set up root SSH authorized_keys (mount or inject your public key at runtime)
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 
+# Make /sys a shared mount at boot so containerd can propagate mounts into pods
+# (required for Calico BPF mode: mount-bpffs init container mounts /sys/fs)
+COPY systemd/mounts.conf /etc/systemd/system/shared-mounts.service
+RUN systemctl enable shared-mounts.service
+
 # NOTE: containerd, kubeadm, kubelet, kubectl are installed by Ansible (site.yml)
 # This image is intentionally minimal — just systemd + sshd base
 

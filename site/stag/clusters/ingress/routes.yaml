@@ -7,9 +7,6 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  tls:
-    - hosts: [ "ssmc.freedynamicdns.net" ]
-      secretName: web-tls
   rules:
     - host: ssmc.freedynamicdns.net          # ← match the real host
       http:

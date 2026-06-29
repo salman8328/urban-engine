@@ -20,6 +20,7 @@ RUN dnf install -y \
     python3 \
     sudo \
     kmod \
+    git \
     && dnf clean all
 
 # Disable unnecessary systemd units that don't work in containers

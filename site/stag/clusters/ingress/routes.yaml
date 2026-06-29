@@ -3,12 +3,10 @@ kind: Ingress
 metadata:
   name: web
   namespace: demo
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-    - host: ssmc.freedynamicdns.net          # ← match the real host
+    - host: ssmc.freedynamicdns.net
       http:
         paths:
           - path: /
